@@ -1,0 +1,499 @@
+:root {
+  --bg: #f0fbfa;
+  --surface: #ffffff;
+  --surface-alt: #cbe4ed;
+  --text: #203038;
+  --muted: #578098;
+  --line: #97adc4;
+  --primary: #578098;
+  --primary-strong: #203038;
+  --accent: #97adc4;
+  --danger: #b42318;
+  --success: #1e7a3d;
+  --radius: 14px;
+  --shadow: 0 10px 26px rgba(32, 48, 56, 0.14);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Sora", "Segoe UI", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 10% 8%, rgba(203, 228, 237, 0.8), transparent 36%),
+    radial-gradient(circle at 90% 92%, rgba(87, 128, 152, 0.22), transparent 34%),
+    linear-gradient(180deg, #f8fdfd 0%, #eef7fa 58%, #e5eff5 100%);
+}
+
+a {
+  color: var(--primary-strong);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+  background: rgba(240, 251, 250, 0.9);
+  border-bottom: 1px solid var(--line);
+}
+
+.topbar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.brand-badge {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #578098 0%, #203038 100%);
+  color: #fff;
+  font-weight: 700;
+}
+
+.nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.nav-links a {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.nav-links a.active {
+  border-color: transparent;
+  background: var(--primary-strong);
+  color: #fff;
+}
+
+.page {
+  max-width: 1200px;
+  margin: 20px auto 30px;
+  padding: 0 18px;
+}
+
+section,
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+
+h1,
+h2,
+h3 {
+  margin-top: 0;
+  letter-spacing: -0.015em;
+}
+
+h1 {
+  font-size: 1.5rem;
+}
+
+p {
+  color: var(--muted);
+}
+
+label {
+  display: block;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-top: 4px;
+  margin-bottom: 12px;
+  background: #fff;
+  color: var(--text);
+}
+
+textarea {
+  min-height: 92px;
+  resize: vertical;
+}
+
+button {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+}
+
+button:hover {
+  background: var(--primary-strong);
+}
+
+button[disabled] {
+  background: #9ea4b0;
+  cursor: not-allowed;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+th,
+td {
+  border: 1px solid var(--line);
+  padding: 9px;
+  font-size: 0.92rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  background: #edf6fb;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.alert {
+  border-radius: 10px;
+  border: 1px solid;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.alert.error {
+  border-color: #f5c2c7;
+  background: #fff1f3;
+  color: #7a1120;
+}
+
+.alert.success {
+  border-color: #b8e0c7;
+  background: #ecfdf3;
+  color: #15562e;
+}
+
+.alert.info {
+  border-color: #cbe4ed;
+  background: #f0fbfa;
+  color: #203038;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.kpi {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: linear-gradient(145deg, #ffffff 0%, #edf6fb 100%);
+  padding: 12px;
+}
+
+.kpi .label {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.kpi .value {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  border: 1px solid;
+}
+
+.badge.success {
+  background: #ecfdf3;
+  border-color: #a5d8ba;
+  color: #15562e;
+}
+
+.badge.warning {
+  background: #eef7fa;
+  border-color: #97adc4;
+  color: #203038;
+}
+
+.badge.error {
+  background: #fff1f3;
+  border-color: #f3b7c0;
+  color: #7a1120;
+}
+
+.mono {
+  font-family: "IBM Plex Mono", monospace;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 16px 0;
+}
+
+.login-body {
+  background: #0b0f12;
+}
+
+.login-body .page {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.auth-layout {
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  overflow: hidden;
+}
+
+.auth-bg {
+  background: url("/static/img/lavadoras.jpg") no-repeat center bottom;
+  background-size: contain;
+  background-color: #0b0f12;
+  position: relative;
+}
+
+.auth-bg::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  background: radial-gradient(circle at 60% 35%, rgba(0,0,0,.10), rgba(0,0,0,.55));
+}
+
+.auth-panel {
+  position: relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 48px;
+  background: rgba(10, 14, 18, 0.55);
+}
+
+.auth-card {
+  width: min(420px, 100%);
+  padding: 34px;
+  border-radius: 18px;
+  color: #fff;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.18);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 22px 55px rgba(0,0,0,0.45);
+}
+
+.auth-card h1 {
+  margin: 0 0 6px;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.auth-card .sub {
+  margin: 0 0 24px;
+  opacity: 0.85;
+  font-size: 14px;
+}
+
+.auth-card label {
+  display:block;
+  margin: 14px 0 8px;
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.auth-card input {
+  width:100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.18);
+  outline: none;
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+}
+
+.auth-card input::placeholder {
+  color: rgba(255,255,255,0.55);
+}
+
+.auth-card .btn {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: none;
+  background: #0b0f12;
+  color:#fff;
+  font-weight: 700;
+  cursor:pointer;
+}
+
+.auth-card .btn:hover {
+  filter: brightness(1.12);
+}
+
+.auth-card .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 14px 0 18px;
+}
+
+.auth-card .checkbox {
+  display:flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.auth-card .checkbox input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.auth-card .link {
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.auth-card .link:hover {
+  text-decoration: underline;
+}
+
+.auth-card .footer {
+  margin: 18px 0 0;
+  font-size: 13px;
+  opacity: 0.8;
+  text-align:center;
+}
+
+@media (max-width: 1060px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .auth-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-bg {
+    display:none;
+  }
+
+  .auth-panel {
+    background: url("/static/img/lavadoras.jpg") no-repeat center bottom;
+    background-size: cover;
+  }
+}
+
+@media (max-width: 860px) {
+  .topbar-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .grid-2,
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  section,
+  .card {
+    padding: 14px;
+  }
+
+  .login-body {
+    background-attachment: scroll;
+  }
+
+  .login-body .page {
+    padding: 0;
+  }
+}

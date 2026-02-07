@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Orden rapida | LaundryPro{% endblock %}
+
+{% block content %}
+<section>
+  <h1>Flujo rapido de orden</h1>
+  <div class="inline-actions">
+    <a href="/desk/orders/scan/">Escanear otra</a>
+    <a href="/desk/orders/search/">Mostrador</a>
+  </div>
+
+  {% if errors %}
+  <div class="alert error">
+    <ul>
+      {% for error in errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if notices %}
+  <div class="alert success">
+    <ul>
+      {% for n in notices %}
+      <li>{{ n }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if order %}
+  <div class="grid-2">
+    <section>
+      <h2>Datos de la orden</h2>
+      <p><strong>Folio:</strong> <span class="mono">{{ order.folio }}</span></p>
+      <p><strong>Cliente:</strong> {% if order.customer %}{{ order.customer }}{% else %}Publico general{% endif %}</p>
+      <p><strong>Estatus:</strong> {{ order.get_status_display }}</p>
+      <p><strong>Areas:</strong> Lavado={{ order.get_wash_status_display }}, Secado={{ order.get_dry_status_display }}, Planchado={{ order.get_ironing_status_display }}</p>
+      <p><strong>Total:</strong> ${{ order.total }} | <strong>Pagado:</strong> ${{ order.paid_amount }} | <strong>Saldo:</strong> ${{ order.balance }}</p>
+      <p><a href="{% url 'order-ticket' order.id %}" target="_blank">Reimprimir ticket</a></p>
+      {% if open_cash_session %}
+      <span class="badge success">Caja activa: {{ open_cash_session.get_shift_display }} ({{ open_cash_session.opened_at|date:"d/m/Y H:i" }})</span>
+      {% else %}
+      <span class="badge warning">Sin caja abierta: no se pueden registrar pagos</span>
+      {% endif %}
+    </section>
+
+    <section>
+      <h2>Registrar pago rapido</h2>
+      <form method="post" style="margin-bottom: 14px;">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="pay_full">
+        <label>Metodo</label>
+        <select name="method">
+          {% for method, label in payment_methods %}
+          <option value="{{ method }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+        <label>Referencia</label>
+        <input name="reference" placeholder="Opcional">
+        <button type="submit">Cobrar saldo completo (${{ order.balance }})</button>
+      </form>
+
+      <form method="post" style="margin-bottom: 14px;">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="pay">
+        <label>Monto</label>
+        <input type="number" step="0.01" min="0.01" max="{{ order.balance }}" name="amount" placeholder="{{ order.balance }}">
+        <label>Metodo</label>
+        <select name="method">
+          {% for method, label in payment_methods %}
+          <option value="{{ method }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+        <label>Referencia</label>
+        <input name="reference" placeholder="Opcional">
+        <label>Notas</label>
+        <input name="notes" placeholder="Opcional">
+        <button type="submit">Registrar pago</button>
+      </form>
+
+      <h2>Entrega rapida</h2>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="deliver">
+        <button type="submit" {% if order.balance > 0 %}disabled{% endif %}>Marcar como entregada</button>
+      </form>
+      {% if order.balance > 0 %}
+      <p>Para entregar, primero liquida el saldo pendiente.</p>
+      {% endif %}
+    </section>
+  </div>
+  {% else %}
+  <p>Orden no encontrada.</p>
+  {% endif %}
+</section>
+{% endblock %}

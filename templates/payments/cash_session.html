@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Caja y turnos | LaundryPro{% endblock %}
+
+{% block content %}
+<section>
+  <h1>Caja y turnos</h1>
+  <div class="inline-actions">
+    <a href="/desk/orders/new/">Nueva orden</a>
+    <a href="/desk/orders/search/">Mostrador</a>
+    <a href="/desk/cash/daily/">Cierre diario</a>
+  </div>
+
+  {% if errors %}
+  <div class="alert error">
+    <strong>Corrige lo siguiente:</strong>
+    <ul>
+      {% for error in errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if open_session %}
+  <div class="alert success"><strong>Caja abierta:</strong> {{ open_session.get_shift_display }} | Apertura: {{ open_session.opening_amount }} | Inicio: {{ open_session.opened_at|date:"d/m/Y H:i" }}</div>
+  {% else %}
+  <div class="alert error"><strong>Sin caja abierta.</strong> No se pueden registrar cobros en mostrador.</div>
+  {% endif %}
+</section>
+
+{% if not open_session %}
+<section>
+  <h2>Abrir caja</h2>
+  <form method="post" class="grid-2">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="open">
+    <div>
+      <label>Turno</label>
+      <select name="shift" required>
+        <option value="">-- Selecciona --</option>
+        {% for value, label in shift_choices %}
+        <option value="{{ value }}">{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label>Monto inicial</label>
+      <input type="number" step="0.01" min="0" name="opening_amount" value="0" required>
+    </div>
+    <div>
+      <label>Notas</label>
+      <input type="text" name="notes" placeholder="Opcional">
+    </div>
+    <div style="display:flex;align-items:flex-end;">
+      <button type="submit">Abrir caja</button>
+    </div>
+  </form>
+</section>
+{% endif %}
+
+{% if open_session %}
+<section>
+  <h2>Registrar movimiento</h2>
+  <form method="post" class="grid-2">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="movement">
+    <div>
+      <label>Tipo</label>
+      <select name="movement_type" required>
+        <option value="">-- Selecciona --</option>
+        {% for value, label in movement_choices %}
+        <option value="{{ value }}">{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label>Monto</label>
+      <input type="number" step="0.01" min="0.01" name="amount" required>
+    </div>
+    <div>
+      <label>Concepto</label>
+      <input type="text" name="concept" required>
+    </div>
+    <div>
+      <label>Notas</label>
+      <input type="text" name="movement_notes">
+    </div>
+    <div style="display:flex;align-items:flex-end;">
+      <button type="submit">Guardar movimiento</button>
+    </div>
+  </form>
+</section>
+
+<section>
+  <h2>Cerrar caja</h2>
+  <form method="post" class="grid-2">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="close">
+    <div>
+      <label>Monto contado al cierre</label>
+      <input type="number" step="0.01" min="0" name="closing_amount" required>
+    </div>
+    <div>
+      <label>Notas de cierre</label>
+      <input type="text" name="closing_notes" placeholder="Diferencias, observaciones">
+    </div>
+    <div style="display:flex;align-items:flex-end;">
+      <button type="submit">Cerrar caja</button>
+    </div>
+  </form>
+</section>
+{% endif %}
+
+{% if open_session and live_summary %}
+<section>
+  <h2>Corte en vivo</h2>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="label">Ingreso por cobros</div><div class="value">${{ live_summary.income_total }}</div></div>
+    <div class="kpi"><div class="label">Ingresos extra</div><div class="value">${{ live_summary.movement_income_total }}</div></div>
+    <div class="kpi"><div class="label">Ganancia neta</div><div class="value">${{ live_summary.net_gain }}</div></div>
+    <div class="kpi"><div class="label">Efectivo esperado</div><div class="value">${{ live_summary.expected_cash }}</div></div>
+  </div>
+  {% if live_insights %}
+  {% for insight in live_insights %}
+  <div class="alert {{ insight.level }}">{{ insight.text }}</div>
+  {% endfor %}
+  {% endif %}
+</section>
+{% endif %}
+
+<section>
+  <h2>Corte por turno</h2>
+  <form method="get" class="grid-2">
+    <div>
+      <label>Sesion</label>
+      <select name="session" onchange="this.form.submit()">
+        {% for session in last_sessions %}
+        <option value="{{ session.id }}" {% if report_session and session.id == report_session.id %}selected{% endif %}>
+          #{{ session.id }} - {{ session.get_shift_display }} - {{ session.opened_at|date:"d/m/Y H:i" }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+  </form>
+
+  {% if report_session and summary %}
+  <div class="kpi-grid">
+    <div class="kpi"><div class="label">Apertura</div><div class="value">${{ report_session.opening_amount }}</div></div>
+    <div class="kpi"><div class="label">Ingreso generado</div><div class="value">${{ summary.generated_total }}</div></div>
+    <div class="kpi"><div class="label">Ganancia neta corte</div><div class="value">${{ summary.net_gain }}</div></div>
+    <div class="kpi"><div class="label">Efectivo esperado</div><div class="value">${{ summary.expected_cash }}</div></div>
+    <div class="kpi"><div class="label">Diferencia cierre</div><div class="value">{% if difference is not None %}${{ difference }}{% else %}-{% endif %}</div></div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <tbody>
+        <tr><td>Efectivo</td><td>${{ summary.cash }}</td></tr>
+        <tr><td>Tarjeta</td><td>${{ summary.card }}</td></tr>
+        <tr><td>Transferencia</td><td>${{ summary.transfer }}</td></tr>
+        <tr><td>Otros</td><td>${{ summary.other }}</td></tr>
+        <tr><td>Ingresos extra (movimientos)</td><td>${{ summary.movement_income_total }}</td></tr>
+        <tr><td>Egresos</td><td>${{ summary.expense_total }}</td></tr>
+        <tr><td>Ajustes</td><td>${{ summary.adjustment_total }}</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="margin-top: 16px;">Cobros del turno</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Fecha</th><th>Folio</th><th>Metodo</th><th>Monto</th><th>Usuario</th></tr>
+      </thead>
+      <tbody>
+        {% for p in payments %}
+        <tr>
+          <td>{{ p.paid_at|date:"d/m/Y H:i" }}</td>
+          <td class="mono">{{ p.order.folio }}</td>
+          <td>{{ p.get_method_display }}</td>
+          <td>${{ p.amount }}</td>
+          <td>{{ p.captured_by|default:"-" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">Sin cobros en la sesion.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="margin-top: 16px;">Movimientos del turno</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Fecha</th><th>Tipo</th><th>Monto</th><th>Concepto</th><th>Usuario</th></tr>
+      </thead>
+      <tbody>
+        {% for m in movements %}
+        <tr>
+          <td>{{ m.occurred_at|date:"d/m/Y H:i" }}</td>
+          <td>{{ m.get_movement_type_display }}</td>
+          <td>${{ m.amount }}</td>
+          <td>{{ m.concept }}</td>
+          <td>{{ m.created_by|default:"-" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">Sin movimientos en la sesion.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p>No hay sesiones para mostrar.</p>
+  {% endif %}
+</section>
+{% if open_session %}
+<script>
+  setTimeout(function () { window.location.reload(); }, 45000);
+</script>
+{% endif %}
+{% endblock %}

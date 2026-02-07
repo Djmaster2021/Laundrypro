@@ -1,0 +1,48 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}LaundryPro{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  {% if request.user.is_authenticated %}
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/">
+        <span class="brand-badge">LP</span>
+        <span>LaundryPro</span>
+      </a>
+      <nav class="nav-links">
+        <a href="/pos/" class="{% if '/pos/' in request.path %}active{% endif %}">POS</a>
+        <a href="/desk/orders/new/" class="{% if '/desk/orders/new/' in request.path %}active{% endif %}">Nueva orden</a>
+        <a href="/desk/orders/search/" class="{% if '/desk/orders/search/' in request.path %}active{% endif %}">Mostrador</a>
+        <a href="/desk/orders/scan/" class="{% if '/desk/orders/scan/' in request.path %}active{% endif %}">Escanear</a>
+        <a href="/desk/cash/" class="{% if '/desk/cash/' in request.path %}active{% endif %}">Caja</a>
+        <a href="/desk/inventory/" class="{% if '/desk/inventory/' in request.path %}active{% endif %}">Inventario</a>
+        <a href="/desk/reports/advanced/" class="{% if '/desk/reports/' in request.path %}active{% endif %}">Reportes</a>
+        <a href="/manager/" class="{% if '/manager/' in request.path %}active{% endif %}">Manager</a>
+        <a href="/logout/">Salir ({{ request.user.username }})</a>
+      </nav>
+    </div>
+  </header>
+  {% endif %}
+
+  <main class="page">
+    {% if messages %}
+    <section>
+      {% for message in messages %}
+      <div class="alert {% if message.tags and 'error' in message.tags %}error{% elif message.tags and 'success' in message.tags %}success{% else %}info{% endif %}">{{ message }}</div>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

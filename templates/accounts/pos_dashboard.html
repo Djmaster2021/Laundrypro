@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Punto de Venta | LaundryPro{% endblock %}
+
+{% block content %}
+<section>
+  <h1>Punto de venta</h1>
+  <p>Operacion diaria para vendedoras y mostrador.</p>
+  <div class="inline-actions">
+    <a href="/desk/orders/new/">Nueva orden</a>
+    <a href="/desk/orders/scan/">Escanear folio</a>
+    <a href="/desk/orders/search/">Buscar ordenes</a>
+    <a href="/desk/cash/">Caja</a>
+    <a href="/pos/manual/">Manual de vendedora</a>
+  </div>
+  <hr>
+  {% if open_session %}
+  <span class="badge success">Caja abierta: {{ open_session.get_shift_display }} ({{ open_session.opened_at|date:"d/m/Y H:i" }})</span>
+  {% else %}
+  <span class="badge error">No tienes caja abierta</span>
+  {% endif %}
+</section>
+
+<section>
+  <h2>Mi dia</h2>
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="label">Cobros hoy</div>
+      <div class="value">{{ my_count_today }}</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Total hoy</div>
+      <div class="value">${{ my_total_today }}</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Ordenes recientes</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Folio</th><th>Cliente</th><th>Estatus</th><th>Saldo</th><th>Accion</th></tr>
+      </thead>
+      <tbody>
+        {% for order in recent_orders %}
+        <tr>
+          <td class="mono">{{ order.folio }}</td>
+          <td>{% if order.customer %}{{ order.customer }}{% else %}Publico general{% endif %}</td>
+          <td>{{ order.get_status_display }}</td>
+          <td>${{ order.balance }}</td>
+          <td><a href="/desk/orders/{{ order.id }}/quick/">Abrir rapido</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">Sin ordenes recientes.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

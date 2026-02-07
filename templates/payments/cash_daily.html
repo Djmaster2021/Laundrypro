@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Cierre diario | LaundryPro{% endblock %}
+
+{% block content %}
+<section>
+  <h1>Cierre diario</h1>
+  <div class="inline-actions">
+    <a href="/desk/cash/">Caja por turno</a>
+    <a href="/desk/orders/search/">Mostrador</a>
+    <a href="/desk/cash/daily/print/?date={{ report_date|date:'Y-m-d' }}" target="_blank">Imprimir / Guardar PDF</a>
+  </div>
+
+  <form method="get" class="grid-2" style="margin-top: 10px;">
+    <div>
+      <label>Fecha</label>
+      <input type="date" name="date" value="{{ report_date|date:'Y-m-d' }}">
+    </div>
+    <div style="display:flex;align-items:flex-end;">
+      <button type="submit">Consultar</button>
+    </div>
+  </form>
+</section>
+
+<section>
+  <h2>Totales del dia</h2>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="label">Efectivo</div><div class="value">${{ totals.cash }}</div></div>
+    <div class="kpi"><div class="label">Tarjeta</div><div class="value">${{ totals.card }}</div></div>
+    <div class="kpi"><div class="label">Transferencia</div><div class="value">${{ totals.transfer }}</div></div>
+    <div class="kpi"><div class="label">Ingreso por cobros</div><div class="value">${{ totals.income_total }}</div></div>
+    <div class="kpi"><div class="label">Ingresos extra</div><div class="value">${{ totals.movement_income_total }}</div></div>
+    <div class="kpi"><div class="label">Ganancia neta dia</div><div class="value">${{ totals.net_gain }}</div></div>
+    <div class="kpi"><div class="label">Efectivo esperado total</div><div class="value">${{ expected_cash_total }}</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Empleados por turno</h2>
+  {% if employees_by_shift %}
+  {% for shift, employees in employees_by_shift.items %}
+  <p><strong>{{ shift }}:</strong> {{ employees|join:", " }}</p>
+  {% endfor %}
+  {% else %}
+  <p>Sin sesiones de caja registradas en la fecha seleccionada.</p>
+  {% endif %}
+</section>
+
+<section>
+  <h2>Totales por empleada/o</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Empleado</th><th>Usuario</th><th>Cobros</th><th>Total</th></tr>
+      </thead>
+      <tbody>
+        {% for row in by_employee %}
+        <tr>
+          <td>{% if row.captured_by__first_name or row.captured_by__last_name %}{{ row.captured_by__first_name }} {{ row.captured_by__last_name }}{% else %}Sin nombre{% endif %}</td>
+          <td>{{ row.captured_by__username|default:"-" }}</td>
+          <td>{{ row.payments_count }}</td>
+          <td>${{ row.total }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">Sin cobros registrados para esta fecha.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Sesiones de caja del dia</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Sesion</th><th>Empleado</th><th>Turno</th><th>Apertura</th><th>Ingreso generado</th><th>Ganancia neta</th><th>Efectivo esperado</th><th>Diferencia cierre</th></tr>
+      </thead>
+      <tbody>
+        {% for row in sessions_summary %}
+        <tr>
+          <td>#{{ row.session.id }}</td>
+          <td>{{ row.session.user }}</td>
+          <td>{{ row.session.get_shift_display }}</td>
+          <td>${{ row.session.opening_amount }}</td>
+          <td>${{ row.generated_total }}</td>
+          <td>${{ row.net_gain }}</td>
+          <td>${{ row.expected_cash }}</td>
+          <td>{% if row.difference is not None %}${{ row.difference }}{% else %}-{% endif %}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8">Sin sesiones de caja en la fecha.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Ordenes pendientes de cobro</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Folio</th><th>Cliente</th><th>Estatus</th><th>Total</th><th>Pagado</th><th>Saldo</th></tr>
+      </thead>
+      <tbody>
+        {% for o in pending_orders %}
+        <tr>
+          <td class="mono">{{ o.folio }}</td>
+          <td>{% if o.customer %}{{ o.customer }}{% else %}Publico general{% endif %}</td>
+          <td>{{ o.get_status_display }}</td>
+          <td>${{ o.total }}</td>
+          <td>${{ o.paid_amount }}</td>
+          <td>${{ o.balance }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6">Sin ordenes pendientes.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

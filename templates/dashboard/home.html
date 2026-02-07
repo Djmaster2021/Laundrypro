@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio | LaundryPro{% endblock %}
+
+{% block content %}
+<section>
+  <h1>LaundryPro</h1>
+  <p>Sistema de lavanderia y planchado listo para desarrollo.</p>
+  <ul>
+    <li><a href="/desk/cash/">Caja y turnos</a></li>
+    <li><a href="/desk/cash/daily/">Cierre diario</a></li>
+    <li><a href="/desk/reports/sales-by-type/">Reporte ventas por tipo</a></li>
+    <li><a href="/desk/orders/scan/">Escanear folio</a></li>
+    <li><a href="/desk/orders/new/">Nueva orden mostrador</a></li>
+    <li><a href="/desk/orders/search/">Mostrador (buscar ordenes)</a></li>
+    <li><a href="/admin/">Panel admin</a></li>
+    <li><a href="/api/orders/">API ordenes</a></li>
+    <li><a href="/api/payments/">API pagos</a></li>
+    <li><a href="/api/inventory/">API inventario</a></li>
+  </ul>
+</section>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Manual Vendedora | LaundryPro{% endblock %}
+
+{% block content %}
+<section>
+  <h1>Manual operativo: Vendedora</h1>
+  <p>Este manual cubre exclusivamente las tareas del punto de venta y mostrador para vendedoras.</p>
+  <div class="inline-actions">
+    <a href="/pos/">Volver a punto de venta</a>
+    <a href="/desk/orders/new/">Nueva orden</a>
+    <a href="/desk/orders/scan/">Escanear folio</a>
+    <a href="/desk/cash/">Caja</a>
+  </div>
+</section>
+
+<section>
+  <h2>Permisos y alcance</h2>
+  <p><strong>La Vendedora opera mostrador y caja del dia.</strong> Las decisiones administrativas/estrategicas y control total (CRUD global) son de la Encargada.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Modulo</th><th>Accion permitida</th><th>No permitido</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Ordenes</td><td>Registrar, buscar, cobrar, entregar segun reglas</td><td>Saltarse validaciones de saldo</td></tr>
+        <tr><td>Caja</td><td>Abrir/cerrar su turno, capturar cobros</td><td>Modificar cortes historicos de otros turnos</td></tr>
+        <tr><td>Clientes</td><td>Alta y consulta para operar ordenes</td><td>Cambios administrativos fuera de flujo</td></tr>
+        <tr><td>Reportes gerenciales</td><td>Consulta basica diaria</td><td>Gestion gerencial avanzada</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Flujo diario recomendado</h2>
+  <ol>
+    <li>Abrir caja al iniciar turno.</li>
+    <li>Registrar orden nueva con cliente y servicios.</li>
+    <li>Cobrar anticipo o total y entregar ticket.</li>
+    <li>Al recoger cliente: escanear folio, validar saldo, cobrar faltante si aplica y entregar.</li>
+    <li>Cerrar caja y reportar incidencias al final del turno.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Ejemplos rapidos</h2>
+  <h3>Ejemplo 1: Alta de orden con anticipo</h3>
+  <p>Cliente Juan deja 3 kg de ropa. Capturas servicio, prometes entrega mañana 18:00, cobras $80 de anticipo en efectivo y generas ticket.</p>
+
+  <h3>Ejemplo 2: Entrega con saldo pendiente</h3>
+  <p>Escaneas folio y sistema marca saldo de $120. Primero registras el pago, verificas saldo en $0 y despues entregas.</p>
+
+  <h3>Ejemplo 3: Error en captura</h3>
+  <p>Si detectas diferencia de servicio/precio, avisa a Encargada para ajuste controlado y evita cambios fuera del proceso.</p>
+</section>
+
+<section>
+  <h2>Buenas practicas de mostrador</h2>
+  <ul>
+    <li>Confirmar telefono y nombre del cliente antes de guardar orden.</li>
+    <li>No omitir forma de pago ni referencia cuando aplique.</li>
+    <li>Usar escaneo por folio para reducir errores en entrega.</li>
+    <li>Registrar observaciones relevantes en notas de orden.</li>
+  </ul>
+</section>
+{% endblock %}

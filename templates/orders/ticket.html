@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ticket {{ order.folio }}</title>
+  <style>
+    body { font-family: monospace; margin: 16px; }
+    .ticket { width: 320px; margin-bottom: 32px; }
+    .line { border-top: 1px dashed #000; margin: 8px 0; }
+    .row { display: flex; justify-content: space-between; }
+    @media print {
+      .no-print { display: none; }
+      .ticket { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <button class="no-print" onclick="window.print()">Imprimir</button>
+
+  {% for label in copy_labels %}
+  <section class="ticket">
+    <h2>{{ business_name }}</h2>
+    <p><strong>{{ label }}</strong></p>
+    <p>Folio: {{ order.folio }}</p>
+    {% if barcode_svg %}
+    <div>{{ barcode_svg|safe }}</div>
+    {% endif %}
+    <p>Fecha: {{ order.received_at|date:"d/m/Y H:i" }}</p>
+    <p>Cliente: {% if order.customer %}{{ order.customer.first_name }} {{ order.customer.last_name }}{% else %}Publico general{% endif %}</p>
+
+    <div class="line"></div>
+
+    {% for item in order.items.all %}
+      <div class="row"><span>{{ item.description }}</span><span>${{ item.total }}</span></div>
+      <div class="row"><small>{{ item.quantity }} x ${{ item.unit_price }}</small><small>IVA {{ item.iva_rate }}%</small></div>
+    {% endfor %}
+
+    <div class="line"></div>
+
+    <div class="row"><span>Subtotal</span><span>${{ order.subtotal }}</span></div>
+    <div class="row"><span>IVA</span><span>${{ order.iva_amount }}</span></div>
+    <div class="row"><strong>Total</strong><strong>${{ order.total }}</strong></div>
+    <div class="row"><span>Anticipo/Pagado</span><span>${{ order.paid_amount }}</span></div>
+    <div class="row"><strong>Saldo</strong><strong>${{ order.balance }}</strong></div>
+
+    <p>Estatus: {{ order.get_status_display }}</p>
+  </section>
+
+  {% if not forloop.last %}<div class="line"></div>{% endif %}
+  {% endfor %}
+</body>
+</html>

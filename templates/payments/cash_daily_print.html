@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cierre diario {{ report_date|date:"d/m/Y" }}</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; color: #111; }
+    h1, h2 { margin: 0 0 8px 0; }
+    .meta { margin-bottom: 16px; }
+    .block { margin-top: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #333; padding: 6px; text-align: left; font-size: 13px; }
+    .totals td { font-weight: 600; }
+    .print-btn { margin-bottom: 12px; }
+    @media print {
+      .print-btn { display: none; }
+      body { margin: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <button class="print-btn" onclick="window.print()">Imprimir</button>
+
+  <h1>Cierre diario - LaundryPro</h1>
+  <p class="meta">Fecha: {{ report_date|date:"d/m/Y" }}</p>
+
+  <section class="block">
+    <h2>Totales del dia</h2>
+    <table>
+      <tbody class="totals">
+        <tr><td>Efectivo</td><td>${{ totals.cash }}</td></tr>
+        <tr><td>Tarjeta</td><td>${{ totals.card }}</td></tr>
+        <tr><td>Transferencia</td><td>${{ totals.transfer }}</td></tr>
+        <tr><td>Otros</td><td>${{ totals.other }}</td></tr>
+        <tr><td>Ingresos por cobros</td><td>${{ totals.income_total }}</td></tr>
+        <tr><td>Ingresos extra</td><td>${{ totals.movement_income_total }}</td></tr>
+        <tr><td>Ganancia neta del dia</td><td>${{ totals.net_gain }}</td></tr>
+        <tr><td>Efectivo esperado total</td><td>${{ expected_cash_total }}</td></tr>
+        <tr><td>Diferencia total de cierres</td><td>${{ closing_difference_total }}</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="block">
+    <h2>Empleados por turno</h2>
+    <table>
+      <thead>
+        <tr><th>Turno</th><th>Empleados</th></tr>
+      </thead>
+      <tbody>
+        {% for shift, employees in employees_by_shift.items %}
+        <tr>
+          <td>{{ shift }}</td>
+          <td>{{ employees|join:", " }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="2">Sin sesiones registradas.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="block">
+    <h2>Totales por empleada/o</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Empleado</th>
+          <th>Usuario</th>
+          <th>Cobros</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in by_employee %}
+        <tr>
+          <td>
+            {% if row.captured_by__first_name or row.captured_by__last_name %}
+              {{ row.captured_by__first_name }} {{ row.captured_by__last_name }}
+            {% else %}
+              Sin nombre
+            {% endif %}
+          </td>
+          <td>{{ row.captured_by__username|default:"-" }}</td>
+          <td>{{ row.payments_count }}</td>
+          <td>${{ row.total }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">Sin cobros del dia.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="block">
+    <h2>Ordenes pendientes</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Folio</th>
+          <th>Cliente</th>
+          <th>Estatus</th>
+          <th>Total</th>
+          <th>Pagado</th>
+          <th>Saldo</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for o in pending_orders %}
+        <tr>
+          <td>{{ o.folio }}</td>
+          <td>{% if o.customer %}{{ o.customer }}{% else %}Publico general{% endif %}</td>
+          <td>{{ o.get_status_display }}</td>
+          <td>${{ o.total }}</td>
+          <td>${{ o.paid_amount }}</td>
+          <td>${{ o.balance }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6">Sin ordenes pendientes.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+</body>
+</html>

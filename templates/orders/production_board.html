@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Produccion por area | LaundryPro{% endblock %}
+
+{% block content %}
+<section>
+  <h1>Tablero de produccion - {{ area_label }}</h1>
+  <div class="inline-actions">
+    <a href="/pos/">Punto de venta</a>
+    <a href="/manager/">Panel encargada</a>
+    <a href="/desk/orders/search/">Mostrador</a>
+  </div>
+
+  <form method="get" class="grid-2" style="margin-top: 10px;">
+    <div>
+      <label>Area</label>
+      <select name="area" onchange="this.form.submit()">
+        <option value="wash" {% if area == 'wash' %}selected{% endif %}>Lavado</option>
+        <option value="dry" {% if area == 'dry' %}selected{% endif %}>Secado</option>
+        <option value="ironing" {% if area == 'ironing' %}selected{% endif %}>Planchado</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Estatus</label>
+      <select name="status" onchange="this.form.submit()">
+        <option value="">Todos</option>
+        {% for value, label in status_choices %}
+        <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </form>
+</section>
+
+<section>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Folio</th>
+          <th>Cliente</th>
+          <th>Promesa</th>
+          <th>Estatus orden</th>
+          <th>Estatus area</th>
+          <th>Actualizar</th>
+          <th>Accion</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td class="mono">{{ order.folio }}</td>
+          <td>{% if order.customer %}{{ order.customer }}{% else %}Publico general{% endif %}</td>
+          <td>{% if order.promised_at %}{{ order.promised_at|date:"d/m/Y H:i" }}{% else %}-{% endif %}</td>
+          <td>{{ order.get_status_display }}</td>
+          <td>
+            {% if area == 'wash' %}
+              {{ order.get_wash_status_display }}
+            {% elif area == 'dry' %}
+              {{ order.get_dry_status_display }}
+            {% else %}
+              {{ order.get_ironing_status_display }}
+            {% endif %}
+          </td>
+          <td>
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="area" value="{{ area }}">
+              <input type="hidden" name="order_id" value="{{ order.id }}">
+              <select name="new_status">
+                {% for value, label in status_choices %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+              <button type="submit">Guardar</button>
+            </form>
+          </td>
+          <td><a href="/desk/orders/{{ order.id }}/quick/">Abrir rapido</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7">Sin ordenes para esta area.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

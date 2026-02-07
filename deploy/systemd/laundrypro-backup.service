@@ -1,0 +1,10 @@
+[Unit]
+Description=LaundryPro PostgreSQL backup diario
+After=network.target
+
+[Service]
+Type=oneshot
+User=postgres
+Group=postgres
+EnvironmentFile=/srv/laundrypro/ops/backups/backup.env
+ExecStart=/srv/laundrypro/ops/backups/pg_backup.sh

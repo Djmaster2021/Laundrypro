@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Panel Encargada | LaundryPro{% endblock %}
+
+{% block content %}
+<section>
+  <h1>Panel de encargada</h1>
+  <p>Monitoreo financiero y operativo del periodo.</p>
+  <form method="get" class="grid-3">
+    <div>
+      <label>Desde</label>
+      <input type="date" name="date_from" value="{{ date_from|date:'Y-m-d' }}">
+    </div>
+    <div>
+      <label>Hasta</label>
+      <input type="date" name="date_to" value="{{ date_to|date:'Y-m-d' }}">
+    </div>
+    <div style="display:flex;align-items:flex-end;">
+      <button type="submit">Actualizar</button>
+    </div>
+  </form>
+  <div class="inline-actions">
+    <a href="/desk/orders/production/">Produccion</a>
+    <a href="/desk/inventory/">Inventario y gastos</a>
+    <a href="/desk/reports/advanced/">Reportes avanzados</a>
+    <a href="/desk/cash/daily/">Cierre diario</a>
+    <a href="/manager/manual/">Manual de encargada</a>
+  </div>
+</section>
+
+<section>
+  <h2>Resumen</h2>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="label">Ingreso total</div><div class="value">${{ total_income }}</div></div>
+    <div class="kpi"><div class="label">Ordenes en periodo</div><div class="value">{{ orders_total }}</div></div>
+    <div class="kpi"><div class="label">Pendientes de cobro</div><div class="value">{{ orders_pending }}</div></div>
+    <div class="kpi"><div class="label">Cajas abiertas</div><div class="value">{{ sessions_open }}</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Ventas por vendedora</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Nombre</th><th>Usuario</th><th>Cobros</th><th>Total</th></tr>
+      </thead>
+      <tbody>
+        {% for row in by_seller %}
+        <tr>
+          <td>{% if row.captured_by__first_name or row.captured_by__last_name %}{{ row.captured_by__first_name }} {{ row.captured_by__last_name }}{% else %}Sin nombre{% endif %}</td>
+          <td>{{ row.captured_by__username|default:"-" }}</td>
+          <td>{{ row.payments_count }}</td>
+          <td>${{ row.total }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">Sin cobros en el periodo.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Metodos de pago</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Metodo</th><th>Cobros</th><th>Total</th></tr>
+      </thead>
+      <tbody>
+        {% for row in payment_methods %}
+        <tr>
+          <td>{{ row.method }}</td>
+          <td>{{ row.count }}</td>
+          <td>${{ row.total }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3">Sin datos.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Servicios mas vendidos</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Servicio</th><th>Categoria</th><th>Cantidad</th><th>Total</th></tr>
+      </thead>
+      <tbody>
+        {% for row in top_services %}
+        <tr>
+          <td>{{ row.service__name }}</td>
+          <td>
+            {% if row.service__category == 'ironing' %}
+              Planchado
+            {% elif row.service__category == 'wash' %}
+              Lavado
+            {% elif row.service__category == 'dry' %}
+              Secado
+            {% elif row.service__category == 'special' %}
+              Especial
+            {% else %}
+              Lavanderia
+            {% endif %}
+          </td>
+          <td>{{ row.qty }}</td>
+          <td>${{ row.total }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">Sin datos.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

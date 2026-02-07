@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Manual Encargada | LaundryPro{% endblock %}
+
+{% block content %}
+<section>
+  <h1>Manual operativo: Encargada</h1>
+  <p>Este manual define para que sirve cada modulo, como operarlo y el alcance de permisos de la Encargada.</p>
+  <div class="inline-actions">
+    <a href="/manager/">Volver a panel encargada</a>
+    <a href="/desk/orders/new/">Ir a nueva orden</a>
+    <a href="/desk/inventory/">Ir a inventario</a>
+    <a href="/desk/reports/advanced/">Ir a reportes</a>
+  </div>
+</section>
+
+<section>
+  <h2>Permisos y alcance</h2>
+  <p><strong>La Encargada tiene control total operativo (CRUD)</strong> sobre clientes, servicios, ordenes, cobros, inventario y gastos.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Modulo</th><th>Crear</th><th>Consultar</th><th>Editar</th><th>Eliminar</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Clientes</td><td>Si</td><td>Si</td><td>Si</td><td>Si</td></tr>
+        <tr><td>Servicios catalogo</td><td>Si</td><td>Si</td><td>Si</td><td>Si</td></tr>
+        <tr><td>Ordenes</td><td>Si</td><td>Si</td><td>Si</td><td>Si</td></tr>
+        <tr><td>Cobros y caja</td><td>Si</td><td>Si</td><td>Si</td><td>Si</td></tr>
+        <tr><td>Inventario y gastos</td><td>Si</td><td>Si</td><td>Si</td><td>Si</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Flujo recomendado de apertura a cierre</h2>
+  <ol>
+    <li>Revisar pendientes en reportes y tablero de produccion.</li>
+    <li>Validar que cada vendedora abra su caja por turno.</li>
+    <li>Supervisar altas y cambios criticos de catalogo/inventario.</li>
+    <li>Monitorear cobros del dia y ordenes con saldo.</li>
+    <li>Ejecutar cierre diario de caja con conciliacion.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Manual por modulo (con ejemplos)</h2>
+  <h3>1. Ordenes y mostrador</h3>
+  <p><strong>Para que sirve:</strong> registrar prendas/servicios, generar folio y ticket, controlar estados de entrega.</p>
+  <p><strong>Como funciona:</strong> en <code>Nueva orden</code>, selecciona cliente, agrega servicios, define anticipo o pago total y guarda.</p>
+  <p><strong>Ejemplo:</strong> cliente Maria deja 6 kg lavado + 4 camisas planchado. Capturas ambos servicios, cobras anticipo de $150 y entregas ticket con folio.</p>
+
+  <h3>2. Caja y cobros</h3>
+  <p><strong>Para que sirve:</strong> abrir/cerrar turno de caja, registrar cobros y movimientos internos.</p>
+  <p><strong>Como funciona:</strong> en <code>Caja</code> abre turno, registra pagos por metodo y al final cierra con monto contado.</p>
+  <p><strong>Ejemplo:</strong> turno tarde abre con $500; registra 12 cobros; al cierre compara efectivo esperado vs contado y valida diferencia.</p>
+
+  <h3>3. Inventario y gastos</h3>
+  <p><strong>Para que sirve:</strong> controlar insumos (detergente, suavizante, bolsas), consumo, merma y gastos operativos.</p>
+  <p><strong>Como funciona:</strong> registra entradas/salidas y gastos con categoria; revisa alertas de stock minimo.</p>
+  <p><strong>Ejemplo:</strong> compra de detergente por $950 (gasto) + entrada de 20 litros (movimiento). Sistema actualiza stock y traza responsable.</p>
+
+  <h3>4. Reportes avanzados</h3>
+  <p><strong>Para que sirve:</strong> tomar decisiones por ventas, gastos, clientes frecuentes, atrasos y pendientes de cobro.</p>
+  <p><strong>Como funciona:</strong> filtra por rango de fechas y revisa KPIs para ajustar operacion.</p>
+  <p><strong>Ejemplo:</strong> detectas aumento en merma y bajas de margen; ajustas compras y procesos de control de inventario.</p>
+</section>
+
+<section>
+  <h2>Politicas operativas recomendadas</h2>
+  <ul>
+    <li>No entregar ordenes con saldo pendiente.</li>
+    <li>Todo cobro debe quedar ligado a una sesion de caja abierta.</li>
+    <li>Cualquier ajuste de precio o cancelacion debe quedar documentado en notas.</li>
+    <li>Cierres diarios obligatorios con validacion por responsable de turno.</li>
+  </ul>
+</section>
+{% endblock %}

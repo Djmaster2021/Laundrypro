@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}Nueva orden | LaundryPro{% endblock %}
+
+{% block content %}
+<section>
+  <h1>Nueva orden de mostrador</h1>
+  <p>Captura completa de cliente, servicios, pago inicial y promesa de entrega.</p>
+  <div class="inline-actions">
+    <a href="/desk/cash/">Caja y turnos</a>
+    <a href="{% url 'desk-search' %}">Volver al mostrador</a>
+  </div>
+
+  {% if not open_cash_session %}
+  <div class="alert error"><strong>Sin caja abierta.</strong> Puedes guardar orden sin pago, pero no registrar anticipo ni pago total.</div>
+  {% else %}
+  <div class="alert success"><strong>Caja abierta activa:</strong> {{ open_cash_session.get_shift_display }} ({{ open_cash_session.opened_at|date:"d/m/Y H:i" }})</div>
+  {% endif %}
+
+  {% if errors %}
+  <div class="alert error">
+    <strong>Corrige lo siguiente:</strong>
+    <ul>
+      {% for error in errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <form method="post" id="order-form">
+    {% csrf_token %}
+
+    <div class="grid-2">
+      <section>
+        <h2>Cliente</h2>
+        <label for="customer_id">Cliente existente</label>
+        <select id="customer_id" name="customer_id">
+          <option value="">-- Nuevo cliente --</option>
+          {% for customer in customers %}
+          <option value="{{ customer.id }}">{{ customer.first_name }} {{ customer.last_name }} - {{ customer.phone }}</option>
+          {% endfor %}
+        </select>
+
+        <label>Nombre</label>
+        <input name="customer_first_name" placeholder="Nombre">
+
+        <label>Apellido</label>
+        <input name="customer_last_name" placeholder="Apellido">
+
+        <label>Telefono</label>
+        <input name="customer_phone" placeholder="5512345678">
+      </section>
+
+      <section>
+        <h2>Pago inicial</h2>
+        <label>Tipo de pago</label>
+        <select name="payment_option" id="payment_option">
+          {% for value, label in payment_options %}
+          <option value="{{ value }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+
+        <label>Monto anticipo</label>
+        <input type="number" step="0.01" min="0" name="anticipo_amount" id="anticipo_amount" value="0">
+
+        <label>Metodo</label>
+        <select name="anticipo_method">
+          {% for method, label in payment_methods %}
+          <option value="{{ method }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+
+        <label>Referencia</label>
+        <input name="anticipo_reference" placeholder="Folio transferencia, ultimos 4, etc.">
+
+        <div class="card" style="margin-top: 8px; margin-bottom: 0;">
+          <div><strong>Total estimado:</strong> $<span id="estimated_total">0.00</span></div>
+          <div><strong>Monto pagado:</strong> $<span id="estimated_paid">0.00</span></div>
+          <div><strong>Saldo estimado:</strong> $<span id="estimated_balance">0.00</span></div>
+          <div><strong>Estatus:</strong> <span id="payment_status">Captura servicios para calcular.</span></div>
+        </div>
+      </section>
+    </div>
+
+    <section>
+      <h2>Servicios de la orden</h2>
+      <div class="table-wrap">
+        <table id="items-table">
+          <thead>
+            <tr>
+              <th>Servicio</th>
+              <th>Cantidad</th>
+              <th>Precio unitario</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <select name="item_service" class="item-service">
+                  <option value="">-- Seleccionar --</option>
+                  {% for service in services %}
+                  <option value="{{ service.id }}" data-price="{{ service.unit_price }}" data-iva="{{ service.default_iva_rate }}">
+                    {{ service.name }} - {{ service.get_category_display }} ({{ service.get_pricing_mode_display }}) - {{ service.estimated_turnaround_hours }}h
+                  </option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td><input type="number" step="0.01" min="0.01" name="item_quantity" value="1"></td>
+              <td><input type="number" step="0.01" min="0" name="item_unit_price" class="item-price"></td>
+              <td><button type="button" class="remove-row">Quitar</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="inline-actions" style="margin-top: 8px;">
+        <button type="button" id="add-item">Agregar servicio</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>Datos adicionales</h2>
+      <div class="grid-2">
+        <div>
+          <label>Fecha promesa</label>
+          <input type="datetime-local" name="promised_at">
+        </div>
+        <div>
+          <label>Notas</label>
+          <textarea name="notes" rows="3" placeholder="Instrucciones de lavado o entrega"></textarea>
+        </div>
+      </div>
+      <div class="inline-actions">
+        <button type="submit">Guardar orden y abrir ticket</button>
+        <a href="{% url 'desk-search' %}">Cancelar</a>
+      </div>
+    </section>
+  </form>
+</section>
+
+<script>
+(function () {
+  const tableBody = document.querySelector('#items-table tbody');
+  const addButton = document.querySelector('#add-item');
+  const paymentOption = document.querySelector('#payment_option');
+  const anticipoInput = document.querySelector('#anticipo_amount');
+  const totalEl = document.querySelector('#estimated_total');
+  const paidEl = document.querySelector('#estimated_paid');
+  const balanceEl = document.querySelector('#estimated_balance');
+  const statusEl = document.querySelector('#payment_status');
+
+  function fmt(value) {
+    return Number(value).toFixed(2);
+  }
+
+  function recalcSummary() {
+    let total = 0;
+    tableBody.querySelectorAll('tr').forEach(function (row) {
+      const serviceSelect = row.querySelector('.item-service');
+      const qtyInput = row.querySelector('input[name="item_quantity"]');
+      const priceInput = row.querySelector('.item-price');
+
+      const qty = parseFloat(qtyInput.value || '0');
+      const price = parseFloat(priceInput.value || '0');
+      const selected = serviceSelect.options[serviceSelect.selectedIndex];
+      const ivaRate = parseFloat((selected && selected.getAttribute('data-iva')) || '0');
+      const base = qty * price;
+      total += base + (base * ivaRate / 100);
+    });
+
+    let paid = parseFloat(anticipoInput.value || '0');
+    const option = paymentOption.value;
+    if (option === 'full') {
+      paid = total;
+      anticipoInput.value = fmt(total);
+      anticipoInput.readOnly = true;
+    } else {
+      anticipoInput.readOnly = false;
+      if (Number.isNaN(paid) || paid < 0) {
+        paid = 0;
+      }
+    }
+
+    const balance = total - paid;
+
+    totalEl.textContent = fmt(total);
+    paidEl.textContent = fmt(paid);
+    balanceEl.textContent = fmt(balance);
+
+    if (total <= 0) {
+      statusEl.textContent = 'Captura servicios para calcular.';
+    } else if (balance <= 0) {
+      statusEl.textContent = 'Orden liquidada.';
+    } else {
+      statusEl.textContent = 'Saldo pendiente.';
+    }
+  }
+
+  function wireRow(row) {
+    const serviceSelect = row.querySelector('.item-service');
+    const priceInput = row.querySelector('.item-price');
+    const removeButton = row.querySelector('.remove-row');
+
+    serviceSelect.addEventListener('change', function () {
+      const selected = serviceSelect.options[serviceSelect.selectedIndex];
+      const price = selected.getAttribute('data-price');
+      if (price && !priceInput.value) {
+        priceInput.value = price;
+      }
+      recalcSummary();
+    });
+
+    removeButton.addEventListener('click', function () {
+      if (tableBody.querySelectorAll('tr').length === 1) {
+        return;
+      }
+      row.remove();
+      recalcSummary();
+    });
+
+    row.querySelectorAll('input').forEach(function (input) {
+      input.addEventListener('input', recalcSummary);
+    });
+  }
+
+  function cloneRow() {
+    const first = tableBody.querySelector('tr');
+    const clone = first.cloneNode(true);
+    clone.querySelectorAll('input').forEach(function (input) {
+      if (input.name === 'item_quantity') {
+        input.value = '1';
+      } else {
+        input.value = '';
+      }
+    });
+    clone.querySelector('.item-service').selectedIndex = 0;
+    wireRow(clone);
+    tableBody.appendChild(clone);
+  }
+
+  wireRow(tableBody.querySelector('tr'));
+  addButton.addEventListener('click', cloneRow);
+  paymentOption.addEventListener('change', recalcSummary);
+  anticipoInput.addEventListener('input', recalcSummary);
+  recalcSummary();
+})();
+</script>
+{% endblock %}

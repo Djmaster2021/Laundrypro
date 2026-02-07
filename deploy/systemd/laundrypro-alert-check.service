@@ -1,0 +1,11 @@
+[Unit]
+Description=LaundryPro verificacion de alertas operativas
+After=network.target
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+WorkingDirectory=/srv/laundrypro
+EnvironmentFile=/srv/laundrypro/.env
+ExecStart=/srv/laundrypro/.venv/bin/python manage.py check_operational_alerts --minutes 60

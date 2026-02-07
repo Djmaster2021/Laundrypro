@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Escanear folio | LaundryPro{% endblock %}
+
+{% block content %}
+<section>
+  <h1>Escanear folio</h1>
+  <p>Flujo rapido: escanear, abrir orden, cobrar/entregar.</p>
+  <div class="inline-actions">
+    <a href="/desk/orders/search/">Buscar ordenes</a>
+    <a href="/desk/orders/new/">Nueva orden</a>
+  </div>
+
+  {% if error %}
+  <div class="alert error"><strong>{{ error }}</strong></div>
+  {% endif %}
+
+  <form method="get" class="grid-2">
+    <div>
+      <label for="scan-input">Folio (scanner o teclado)</label>
+      <input id="scan-input" name="q" value="{{ query }}" placeholder="ORD-..." autocomplete="off" autofocus>
+    </div>
+    <div style="display:flex;align-items:flex-end;">
+      <button type="submit">Abrir orden</button>
+    </div>
+  </form>
+</section>
+
+<script>
+  (function () {
+    const input = document.getElementById('scan-input');
+    if (input) {
+      input.focus();
+      input.select();
+    }
+  })();
+</script>
+{% endblock %}

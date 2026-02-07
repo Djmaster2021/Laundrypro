@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Login | LaundryPro{% endblock %}
+{% block body_class %}login-body{% endblock %}
+
+{% block content %}
+<div class="auth-layout">
+  <div class="auth-bg"></div>
+
+  <div class="auth-panel">
+    <div class="auth-card">
+      <h1>Welcome back</h1>
+      <p class="sub">Ingresa con tu cuenta para continuar.</p>
+
+      <form method="post">
+        {% csrf_token %}
+        <label for="id_username">Usuario</label>
+        <input id="id_username" name="username" type="text" placeholder="Tu usuario" required autofocus>
+
+        <label for="id_password">Contrasena</label>
+        <input id="id_password" name="password" type="password" placeholder="********" required>
+
+        <button type="submit" class="btn">Login</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% if form.errors %}
+<script>
+  window.addEventListener("DOMContentLoaded", function () {
+    alert("Usuario o contrasena incorrectos.");
+  });
+</script>
+{% endif %}
+{% endblock %}

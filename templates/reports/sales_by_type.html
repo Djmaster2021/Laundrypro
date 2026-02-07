@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Reporte por tipo | LaundryPro{% endblock %}
+
+{% block content %}
+<section>
+  <h1>Reporte de ventas por tipo</h1>
+  <div class="inline-actions">
+    <a href="/desk/orders/search/">Mostrador</a>
+    <a href="/desk/cash/daily/">Cierre diario</a>
+  </div>
+
+  <form method="get" class="grid-3" style="margin-top: 10px;">
+    <div>
+      <label>Desde</label>
+      <input type="date" name="date_from" value="{{ date_from|date:'Y-m-d' }}">
+    </div>
+    <div>
+      <label>Hasta</label>
+      <input type="date" name="date_to" value="{{ date_to|date:'Y-m-d' }}">
+    </div>
+    <div style="display:flex;align-items:flex-end;">
+      <button type="submit">Consultar</button>
+    </div>
+  </form>
+</section>
+
+<section>
+  <h2>Totales</h2>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="label">Lavanderia</div><div class="value">${{ laundry_total }}</div></div>
+    <div class="kpi"><div class="label">Planchado</div><div class="value">${{ ironing_total }}</div></div>
+    <div class="kpi"><div class="label">Total general</div><div class="value">${{ global_total }}</div></div>
+    <div class="kpi"><div class="label">Ordenes mixtas</div><div class="value">{{ mixed_orders_count }}</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Detalle por categoria</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Categoria</th><th>Items</th><th>Total</th></tr></thead>
+      <tbody>
+        {% for row in by_type %}
+        <tr>
+          <td>
+            {% if row.service__category == 'laundry' %}
+              Lavanderia
+            {% elif row.service__category == 'wash' %}
+              Lavado
+            {% elif row.service__category == 'dry' %}
+              Secado
+            {% elif row.service__category == 'ironing' %}
+              Planchado
+            {% elif row.service__category == 'special' %}
+              Especial
+            {% else %}
+              {{ row.service__category }}
+            {% endif %}
+          </td>
+          <td>{{ row.items_count }}</td>
+          <td>${{ row.total }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3">Sin datos en el rango.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Top servicios</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Servicio</th><th>Categoria</th><th>Items</th><th>Total</th></tr></thead>
+      <tbody>
+        {% for row in top_services %}
+        <tr>
+          <td>{{ row.service__name }}</td>
+          <td>
+            {% if row.service__category == 'ironing' %}
+              Planchado
+            {% elif row.service__category == 'wash' %}
+              Lavado
+            {% elif row.service__category == 'dry' %}
+              Secado
+            {% elif row.service__category == 'special' %}
+              Especial
+            {% else %}
+              Lavanderia
+            {% endif %}
+          </td>
+          <td>{{ row.qty }}</td>
+          <td>${{ row.total }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">Sin servicios vendidos en el rango.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

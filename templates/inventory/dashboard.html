@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Inventario y gastos | LaundryPro{% endblock %}
+
+{% block content %}
+<section>
+  <h1>Inventario y gastos</h1>
+  <p>Control de insumos, movimientos y egresos operativos.</p>
+  <div class="inline-actions">
+    <a href="/manager/">Panel encargada</a>
+    <a href="/desk/reports/advanced/">Reportes avanzados</a>
+  </div>
+
+  <form method="get" class="grid-3" style="margin-top: 10px;">
+    <div>
+      <label>Desde</label>
+      <input type="date" name="date_from" value="{{ date_from|date:'Y-m-d' }}">
+    </div>
+    <div>
+      <label>Hasta</label>
+      <input type="date" name="date_to" value="{{ date_to|date:'Y-m-d' }}">
+    </div>
+    <div style="display:flex;align-items:flex-end;">
+      <button type="submit">Actualizar</button>
+    </div>
+  </form>
+</section>
+
+<section>
+  <h2>Alertas de stock minimo</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Insumo</th><th>Stock actual</th><th>Minimo</th><th>Unidad</th></tr></thead>
+      <tbody>
+        {% for s in low_stock_supplies %}
+        <tr><td>{{ s.name }}</td><td>{{ s.current_stock }}</td><td>{{ s.min_stock }}</td><td>{{ s.get_unit_display }}</td></tr>
+        {% empty %}
+        <tr><td colspan="4">Sin alertas de stock minimo.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="grid-2">
+  <section>
+    <h2>Registrar movimiento</h2>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="movement">
+      <label>Insumo</label>
+      <select name="supply" required>
+        <option value="">-- Selecciona --</option>
+        {% for s in supplies %}
+        <option value="{{ s.id }}">{{ s.name }} (stock {{ s.current_stock }})</option>
+        {% endfor %}
+      </select>
+      <label>Tipo</label>
+      <select name="movement_type" required>
+        {% for value, label in movement_type_choices %}
+        <option value="{{ value }}">{{ label }}</option>
+        {% endfor %}
+      </select>
+      <label>Cantidad</label>
+      <input type="number" step="0.01" min="0.01" name="quantity" required>
+      <label>Costo unitario</label>
+      <input type="number" step="0.01" min="0" name="unit_cost" value="0">
+      <label>Concepto</label>
+      <input type="text" name="concept" required>
+      <label>Notas</label>
+      <input type="text" name="movement_notes">
+      <button type="submit">Guardar movimiento</button>
+    </form>
+  </section>
+
+  <section>
+    <h2>Registrar gasto</h2>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="expense">
+      <label>Categoria</label>
+      <select name="category" required>
+        {% for value, label in expense_category_choices %}
+        <option value="{{ value }}">{{ label }}</option>
+        {% endfor %}
+      </select>
+      <label>Monto</label>
+      <input type="number" step="0.01" min="0.01" name="amount" required>
+      <label>Fecha</label>
+      <input type="date" name="expense_date" value="{{ today|date:'Y-m-d' }}" required>
+      <label>Descripcion</label>
+      <input type="text" name="description" required>
+      <label>Insumo relacionado</label>
+      <select name="related_supply">
+        <option value="">-- Ninguno --</option>
+        {% for s in supplies %}
+        <option value="{{ s.id }}">{{ s.name }}</option>
+        {% endfor %}
+      </select>
+      <label>Notas</label>
+      <input type="text" name="expense_notes">
+      <button type="submit">Guardar gasto</button>
+    </form>
+  </section>
+</div>
+
+<section>
+  <h2>Consumo de insumos (periodo)</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Insumo</th><th>Movimientos</th><th>Cantidad consumida</th></tr></thead>
+      <tbody>
+        {% for row in consumption %}
+        <tr><td>{{ row.supply__name }}</td><td>{{ row.moves }}</td><td>{{ row.total_qty }}</td></tr>
+        {% empty %}
+        <tr><td colspan="3">Sin consumo en el periodo.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Gastos por categoria (periodo)</h2>
+  <p><strong>Total gastos:</strong> ${{ expense_total }}</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Categoria</th><th>Registros</th><th>Total</th></tr></thead>
+      <tbody>
+        {% for row in expense_by_category %}
+        <tr><td>{{ row.category }}</td><td>{{ row.count }}</td><td>${{ row.total }}</td></tr>
+        {% empty %}
+        <tr><td colspan="3">Sin gastos en el periodo.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Ultimos movimientos</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Fecha</th><th>Insumo</th><th>Tipo</th><th>Cantidad</th><th>Concepto</th><th>Usuario</th></tr></thead>
+      <tbody>
+        {% for m in latest_movements %}
+        <tr><td>{{ m.occurred_at|date:"d/m/Y H:i" }}</td><td>{{ m.supply.name }}</td><td>{{ m.get_movement_type_display }}</td><td>{{ m.quantity }}</td><td>{{ m.concept }}</td><td>{{ m.created_by|default:"-" }}</td></tr>
+        {% empty %}
+        <tr><td colspan="6">Sin movimientos.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Ultimos gastos</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Fecha</th><th>Categoria</th><th>Monto</th><th>Descripcion</th><th>Usuario</th></tr></thead>
+      <tbody>
+        {% for e in latest_expenses %}
+        <tr><td>{{ e.expense_date }}</td><td>{{ e.get_category_display }}</td><td>${{ e.amount }}</td><td>{{ e.description }}</td><td>{{ e.created_by|default:"-" }}</td></tr>
+        {% empty %}
+        <tr><td colspan="5">Sin gastos.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

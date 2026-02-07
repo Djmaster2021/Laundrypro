@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Reportes avanzados | LaundryPro{% endblock %}
+
+{% block content %}
+<section>
+  <h1>Reportes avanzados</h1>
+  <div class="inline-actions">
+    <a href="/manager/">Panel encargada</a>
+    <a href="/desk/inventory/">Inventario</a>
+    <a href="/desk/reports/sales-by-type/">Ventas por tipo</a>
+  </div>
+
+  <form method="get" class="grid-3" style="margin-top: 10px;">
+    <div>
+      <label>Desde</label>
+      <input type="date" name="date_from" value="{{ date_from|date:'Y-m-d' }}">
+    </div>
+    <div>
+      <label>Hasta</label>
+      <input type="date" name="date_to" value="{{ date_to|date:'Y-m-d' }}">
+    </div>
+    <div style="display:flex;align-items:flex-end;">
+      <button type="submit">Actualizar</button>
+    </div>
+  </form>
+</section>
+
+<section>
+  <h2>Resumen financiero</h2>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="label">Ventas del periodo</div><div class="value">${{ sales_total }}</div></div>
+    <div class="kpi"><div class="label">Gastos del periodo</div><div class="value">${{ expenses_total }}</div></div>
+    <div class="kpi"><div class="label">Utilidad estimada</div><div class="value">${{ estimated_profit }}</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Clientes frecuentes</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Cliente</th><th>Telefono</th><th>Ordenes</th><th>Ventas</th></tr></thead>
+      <tbody>
+        {% for c in frequent_customers %}
+        <tr><td>{{ c.first_name }} {{ c.last_name }}</td><td>{{ c.phone }}</td><td>{{ c.orders_count }}</td><td>${{ c.sales }}</td></tr>
+        {% empty %}
+        <tr><td colspan="4">Sin datos.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Servicios mas vendidos</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Servicio</th><th>Categoria</th><th>Items</th><th>Total</th></tr></thead>
+      <tbody>
+        {% for row in top_services %}
+        <tr>
+          <td>{{ row.service__name }}</td>
+          <td>
+            {% if row.service__category == 'ironing' %}
+              Planchado
+            {% elif row.service__category == 'wash' %}
+              Lavado
+            {% elif row.service__category == 'dry' %}
+              Secado
+            {% elif row.service__category == 'special' %}
+              Especial
+            {% else %}
+              Lavanderia
+            {% endif %}
+          </td>
+          <td>{{ row.count }}</td>
+          <td>${{ row.total }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">Sin datos.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Consumo de insumos</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Insumo</th><th>Movimientos</th><th>Cantidad consumida</th></tr></thead>
+      <tbody>
+        {% for row in supplies_consumption %}
+        <tr><td>{{ row.supply__name }}</td><td>{{ row.count }}</td><td>{{ row.total_qty }}</td></tr>
+        {% empty %}
+        <tr><td colspan="3">Sin consumo en el periodo.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Ordenes pendientes de cobro</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Folio</th><th>Cliente</th><th>Estatus</th><th>Promesa</th><th>Saldo</th></tr></thead>
+      <tbody>
+        {% for o in pending_orders %}
+        <tr><td class="mono">{{ o.folio }}</td><td>{% if o.customer %}{{ o.customer }}{% else %}Publico general{% endif %}</td><td>{{ o.get_status_display }}</td><td>{% if o.promised_at %}{{ o.promised_at|date:"d/m/Y H:i" }}{% else %}-{% endif %}</td><td>${{ o.balance }}</td></tr>
+        {% empty %}
+        <tr><td colspan="5">Sin ordenes pendientes.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Ordenes atrasadas</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Folio</th><th>Cliente</th><th>Promesa</th><th>Estatus</th><th>Saldo</th></tr></thead>
+      <tbody>
+        {% for o in overdue_orders %}
+        <tr><td class="mono">{{ o.folio }}</td><td>{% if o.customer %}{{ o.customer }}{% else %}Publico general{% endif %}</td><td>{{ o.promised_at|date:"d/m/Y H:i" }}</td><td>{{ o.get_status_display }}</td><td>${{ o.balance }}</td></tr>
+        {% empty %}
+        <tr><td colspan="5">Sin ordenes atrasadas.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
