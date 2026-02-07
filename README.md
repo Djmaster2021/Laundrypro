@@ -242,4 +242,7 @@ templates/
 
 ## Licencia
 
-Definir licencia del proyecto antes de liberar públicamente.
+Licencia propietaria (`All Rights Reserved`).
+
+Uso, copia, modificación o distribución solo con autorización escrita del titular.
+Consulta el archivo `LICENSE`.
