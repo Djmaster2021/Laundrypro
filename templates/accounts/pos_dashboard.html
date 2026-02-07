@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load formatters %}
 
 {% block title %}Punto de Venta | LaundryPro{% endblock %}
 
@@ -15,7 +16,7 @@
   </div>
   <hr>
   {% if open_session %}
-  <span class="badge success">Caja abierta: {{ open_session.get_shift_display }} ({{ open_session.opened_at|date:"d/m/Y H:i" }})</span>
+  <span class="badge success">Caja abierta: {{ open_session.get_shift_display }} ({{ open_session.opened_at|mxdatetime }})</span>
   {% else %}
   <span class="badge error">No tienes caja abierta</span>
   {% endif %}
@@ -30,7 +31,7 @@
     </div>
     <div class="kpi">
       <div class="label">Total hoy</div>
-      <div class="value">${{ my_total_today }}</div>
+      <div class="value">{{ my_total_today|mxn }}</div>
     </div>
   </div>
 </section>
@@ -48,7 +49,7 @@
           <td class="mono">{{ order.folio }}</td>
           <td>{% if order.customer %}{{ order.customer }}{% else %}Publico general{% endif %}</td>
           <td>{{ order.get_status_display }}</td>
-          <td>${{ order.balance }}</td>
+          <td>{{ order.balance|mxn }}</td>
           <td><a href="/desk/orders/{{ order.id }}/quick/">Abrir rapido</a></td>
         </tr>
         {% empty %}

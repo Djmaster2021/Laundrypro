@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load formatters %}
+
+{% block title %}Manual Operativo Final | LaundryPro{% endblock %}
+
+{% block content %}
+<section>
+  <h1>Manual Operativo Final (Imprimible)</h1>
+  <p>Version formal para operacion diaria. Fecha de emision: {% now "d/m/Y H:i" %}. Documento aplicable a roles de Vendedora y Encargada.</p>
+  <div class="inline-actions">
+    <a href="/manager/">Panel</a>
+    <a href="javascript:window.print();">Imprimir / Guardar PDF</a>
+  </div>
+</section>
+
+<section>
+  <h2>1. Politicas obligatorias</h2>
+  <ul>
+    <li>Queda prohibido entregar ordenes con saldo pendiente.</li>
+    <li>Todo cobro debe registrarse en caja abierta y con metodo de pago correcto.</li>
+    <li>Cambios de precio, anulaciones y cierres de caja quedan auditados y son trazables por usuario.</li>
+    <li>La autenticacion del sistema y repositorios debe operar con llave SSH (sin password).</li>
+    <li>El cierre diario debe completarse cada dia laboral sin excepcion.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>2. Checklist de apertura (Vendedora)</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Actividad</th><th>OK</th><th>Observaciones</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Iniciar sesion con usuario personal</td><td>___</td><td>____________________</td></tr>
+        <tr><td>2</td><td>Abrir caja con monto inicial</td><td>___</td><td>____________________</td></tr>
+        <tr><td>3</td><td>Validar materiales de mostrador y ticketera</td><td>___</td><td>____________________</td></tr>
+        <tr><td>4</td><td>Revisar pendientes del turno anterior</td><td>___</td><td>____________________</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>3. Checklist de operacion (Vendedora)</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Control</th><th>Frecuencia</th><th>OK</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Confirmar nombre y telefono del cliente</td><td>Cada orden</td><td>___</td></tr>
+        <tr><td>2</td><td>Registrar anticipo/pago con referencia</td><td>Cada cobro</td><td>___</td></tr>
+        <tr><td>3</td><td>Validar saldo antes de entrega</td><td>Cada entrega</td><td>___</td></tr>
+        <tr><td>4</td><td>Escalar incidencias de precio o anulacion</td><td>Inmediato</td><td>___</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>4. Checklist de cierre de turno (Vendedora)</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Actividad</th><th>OK</th><th>Firma</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Registrar ultimo cobro y movimientos</td><td>___</td><td>__________</td></tr>
+        <tr><td>2</td><td>Contar efectivo fisico</td><td>___</td><td>__________</td></tr>
+        <tr><td>3</td><td>Cerrar caja con notas de diferencia (si aplica)</td><td>___</td><td>__________</td></tr>
+        <tr><td>4</td><td>Entregar reporte de incidencias</td><td>___</td><td>__________</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>5. Checklist de supervision (Encargada)</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Control gerencial</th><th>Frecuencia</th><th>OK</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Revisar semaforos de caja, pendientes y atraso</td><td>Cada inicio de jornada</td><td>___</td></tr>
+        <tr><td>2</td><td>Validar diferencias altas de caja y alertas activas</td><td>Diario</td><td>___</td></tr>
+        <tr><td>3</td><td>Autorizar ajustes de catalogo y promociones</td><td>Cuando aplique</td><td>___</td></tr>
+        <tr><td>4</td><td>Verificar backup diario y prueba de restauracion programada</td><td>Semanal</td><td>___</td></tr>
+        <tr><td>5</td><td>Cerrar corte diario y archivo operativo</td><td>Diario</td><td>___</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>6. Matriz de escalamiento</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Evento</th><th>Severidad</th><th>Responsable inicial</th><th>Accion inmediata</th></tr></thead>
+      <tbody>
+        <tr><td>Diferencia de caja mayor al umbral</td><td>Alta</td><td>Encargada</td><td>Auditar movimientos y cobros del turno</td></tr>
+        <tr><td>Error 500 repetitivo</td><td>Critica</td><td>Tecnico/Soporte</td><td>Revisar logs y estabilizar servicio</td></tr>
+        <tr><td>Caida de base de datos</td><td>Critica</td><td>Tecnico/Soporte</td><td>Recuperar DB, validar integridad y disponibilidad</td></tr>
+        <tr><td>Queja por atraso de entrega</td><td>Media</td><td>Encargada</td><td>Priorizar produccion y comunicar ETA al cliente</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>7. Firmas de adopcion</h2>
+  <p>Con esta firma se confirma lectura, capacitacion y cumplimiento del presente manual.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Nombre</th><th>Rol</th><th>Fecha</th><th>Firma</th></tr></thead>
+      <tbody>
+        <tr><td>________________</td><td>Vendedora</td><td>____/____/______</td><td>________________</td></tr>
+        <tr><td>________________</td><td>Encargada</td><td>____/____/______</td><td>________________</td></tr>
+        <tr><td>________________</td><td>Administrador</td><td>____/____/______</td><td>________________</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

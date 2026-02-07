@@ -170,6 +170,21 @@ Herramientas:
 - Comando: `python manage.py check_operational_alerts --minutes 60`
 - Unit/timer: `deploy/systemd/laundrypro-alert-check.service`, `deploy/systemd/laundrypro-alert-check.timer`
 
+## Mejoras de producto vendible (fase actual)
+
+- Dashboard ejecutivo con semáforos de caja, pendientes, atraso y salud técnica:
+  - `templates/accounts/manager_dashboard.html`
+  - `apps/accounts/web_views.py`
+- Formato uniforme de moneda/fecha en dashboards:
+  - `apps/common/templatetags/formatters.py`
+- Catálogo premium:
+  - historial de precios por servicio (`ServicePriceHistory`)
+  - promociones temporales (`ServicePromotion`)
+  - endpoints API: `/api/catalog/price-history/`, `/api/catalog/promotions/`
+- Manual operativo formal imprimible:
+  - `templates/accounts/operations_manual_print.html`
+  - ruta: `/manual/print/`
+
 ## Pruebas recomendadas
 
 Suite completa de seguridad, auditoría, monitoreo y regresión:

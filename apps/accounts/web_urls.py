@@ -5,6 +5,7 @@ from .web_views import (
     AppHomeRedirectView,
     ManagerDashboardView,
     ManagerManualView,
+    OperationsManualPrintView,
     POSDashboardView,
     RoleLoginView,
     RoleLogoutView,
@@ -30,6 +31,7 @@ urlpatterns = [
     ),
     path("manager/", ManagerDashboardView.as_view(), name="manager-dashboard"),
     path("manager/manual/", ManagerManualView.as_view(), name="manager-manual"),
+    path("manual/print/", OperationsManualPrintView.as_view(), name="operations-manual-print"),
     path("pos/", POSDashboardView.as_view(), name="pos-dashboard"),
     path("pos/manual/", SellerManualView.as_view(), name="seller-manual"),
 ]

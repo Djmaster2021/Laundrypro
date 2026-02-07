@@ -299,6 +299,12 @@ th {
   color: #7a1120;
 }
 
+.badge.danger {
+  background: #fff1f3;
+  border-color: #f3b7c0;
+  color: #7a1120;
+}
+
 .mono {
   font-family: "IBM Plex Mono", monospace;
 }
@@ -495,5 +501,29 @@ hr {
 
   .login-body .page {
     padding: 0;
+  }
+}
+
+@media print {
+  .topbar,
+  .inline-actions {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .page {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  section,
+  .card {
+    box-shadow: none;
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 }

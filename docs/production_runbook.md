@@ -137,3 +137,25 @@ Flujo validado por prueba automatica:
 
 Prueba:
 - `python manage.py test apps.payments.tests.test_business_regression_flow -v 2`
+
+## 9) Catalogo premium
+
+Implementado:
+- Historial de cambios de precio por servicio (`ServicePriceHistory`).
+- Promociones temporales por servicio (`ServicePromotion`).
+
+APIs:
+- `/api/catalog/price-history/`
+- `/api/catalog/promotions/`
+
+## 10) Manual operativo final
+
+Version formal imprimible:
+- Ruta web: `/manual/print/`
+- Plantilla: `templates/accounts/operations_manual_print.html`
+
+Incluye:
+- Politicas obligatorias.
+- Checklists por rol (vendedora y encargada).
+- Matriz de escalamiento.
+- Firmas de adopcion.

@@ -49,3 +49,17 @@ class AuthorizationTests(TestCase):
         response = self.client.get("/manager/")
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/")
+
+    def test_manager_dashboard_allows_manager_role(self):
+        self.client.force_login(self.manager_user)
+        response = self.client.get("/manager/")
+        self.assertEqual(response.status_code, 200)
+
+    def test_operations_manual_print_allows_seller(self):
+        self.client.force_login(self.seller_user)
+        response = self.client.get("/manual/print/")
+        self.assertEqual(response.status_code, 200)
+
+    def test_operations_manual_print_requires_login(self):
+        response = self.client.get("/manual/print/")
+        self.assertEqual(response.status_code, 302)

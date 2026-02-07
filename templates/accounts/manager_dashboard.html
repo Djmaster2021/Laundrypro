@@ -1,11 +1,12 @@
 {% extends "base.html" %}
+{% load formatters %}
 
 {% block title %}Panel Encargada | LaundryPro{% endblock %}
 
 {% block content %}
 <section>
-  <h1>Panel de encargada</h1>
-  <p>Monitoreo financiero y operativo del periodo.</p>
+  <h1>Panel ejecutivo de operación</h1>
+  <p>Semáforos de caja, pendientes y atraso para decisiones rápidas de turno.</p>
   <form method="get" class="grid-3">
     <div>
       <label>Desde</label>
@@ -25,16 +26,82 @@
     <a href="/desk/reports/advanced/">Reportes avanzados</a>
     <a href="/desk/cash/daily/">Cierre diario</a>
     <a href="/manager/manual/">Manual de encargada</a>
+    <a href="/manual/print/" target="_blank">Manual operativo imprimible</a>
   </div>
 </section>
 
 <section>
-  <h2>Resumen</h2>
+  <h2>KPIs ejecutivos</h2>
   <div class="kpi-grid">
-    <div class="kpi"><div class="label">Ingreso total</div><div class="value">${{ total_income }}</div></div>
+    <div class="kpi"><div class="label">Ingreso total</div><div class="value">{{ total_income|mxn }}</div></div>
     <div class="kpi"><div class="label">Ordenes en periodo</div><div class="value">{{ orders_total }}</div></div>
     <div class="kpi"><div class="label">Pendientes de cobro</div><div class="value">{{ orders_pending }}</div></div>
+    <div class="kpi"><div class="label">Ordenes atrasadas</div><div class="value">{{ overdue_orders }}</div></div>
     <div class="kpi"><div class="label">Cajas abiertas</div><div class="value">{{ sessions_open }}</div></div>
+    <div class="kpi"><div class="label">Alertas en riesgo</div><div class="value">{{ at_risk_count }}</div></div>
+    <div class="kpi"><div class="label">Salud operativa</div><div class="value">{{ cash_health_score }} / 100</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Semáforos de operación</h2>
+  <div class="kpi-grid">
+    {% for item in executive_traffic %}
+    <div class="kpi">
+      <div class="label">{{ item.title }}</div>
+      <div class="value">{{ item.value }}</div>
+      <span class="badge {{ item.level }}">{{ item.level_text }}</span>
+      <p style="margin: 8px 0 0;">{{ item.hint }}</p>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section>
+  <h2>Pendientes de cobro prioritarios</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Folio</th><th>Cliente</th><th>Estatus</th><th>Promesa</th><th>Saldo</th></tr>
+      </thead>
+      <tbody>
+        {% for o in recent_pending_orders %}
+        <tr>
+          <td class="mono">{{ o.folio }}</td>
+          <td>{% if o.customer %}{{ o.customer }}{% else %}Publico general{% endif %}</td>
+          <td>{{ o.get_status_display }}</td>
+          <td>{{ o.promised_at|mxdatetime }}</td>
+          <td>{{ o.balance|mxn }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">Sin pendientes relevantes en este periodo.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Ordenes atrasadas (SLA)</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Folio</th><th>Cliente</th><th>Promesa</th><th>Estatus</th><th>Saldo</th></tr>
+      </thead>
+      <tbody>
+        {% for o in recent_overdue_orders %}
+        <tr>
+          <td class="mono">{{ o.folio }}</td>
+          <td>{% if o.customer %}{{ o.customer }}{% else %}Publico general{% endif %}</td>
+          <td>{{ o.promised_at|mxdatetime }}</td>
+          <td>{{ o.get_status_display }}</td>
+          <td>{{ o.balance|mxn }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">Sin atrasos activos.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </section>
 
@@ -51,7 +118,7 @@
           <td>{% if row.captured_by__first_name or row.captured_by__last_name %}{{ row.captured_by__first_name }} {{ row.captured_by__last_name }}{% else %}Sin nombre{% endif %}</td>
           <td>{{ row.captured_by__username|default:"-" }}</td>
           <td>{{ row.payments_count }}</td>
-          <td>${{ row.total }}</td>
+          <td>{{ row.total|mxn }}</td>
         </tr>
         {% empty %}
         <tr><td colspan="4">Sin cobros en el periodo.</td></tr>
@@ -73,7 +140,7 @@
         <tr>
           <td>{{ row.method }}</td>
           <td>{{ row.count }}</td>
-          <td>${{ row.total }}</td>
+          <td>{{ row.total|mxn }}</td>
         </tr>
         {% empty %}
         <tr><td colspan="3">Sin datos.</td></tr>
@@ -108,7 +175,7 @@
             {% endif %}
           </td>
           <td>{{ row.qty }}</td>
-          <td>${{ row.total }}</td>
+          <td>{{ row.total|mxn }}</td>
         </tr>
         {% empty %}
         <tr><td colspan="4">Sin datos.</td></tr>

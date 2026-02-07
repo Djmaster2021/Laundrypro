@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load formatters %}
 
 {% block title %}Reportes avanzados | LaundryPro{% endblock %}
 
@@ -29,9 +30,9 @@
 <section>
   <h2>Resumen financiero</h2>
   <div class="kpi-grid">
-    <div class="kpi"><div class="label">Ventas del periodo</div><div class="value">${{ sales_total }}</div></div>
-    <div class="kpi"><div class="label">Gastos del periodo</div><div class="value">${{ expenses_total }}</div></div>
-    <div class="kpi"><div class="label">Utilidad estimada</div><div class="value">${{ estimated_profit }}</div></div>
+    <div class="kpi"><div class="label">Ventas del periodo</div><div class="value">{{ sales_total|mxn }}</div></div>
+    <div class="kpi"><div class="label">Gastos del periodo</div><div class="value">{{ expenses_total|mxn }}</div></div>
+    <div class="kpi"><div class="label">Utilidad estimada</div><div class="value">{{ estimated_profit|mxn }}</div></div>
   </div>
 </section>
 
@@ -42,7 +43,7 @@
       <thead><tr><th>Cliente</th><th>Telefono</th><th>Ordenes</th><th>Ventas</th></tr></thead>
       <tbody>
         {% for c in frequent_customers %}
-        <tr><td>{{ c.first_name }} {{ c.last_name }}</td><td>{{ c.phone }}</td><td>{{ c.orders_count }}</td><td>${{ c.sales }}</td></tr>
+        <tr><td>{{ c.first_name }} {{ c.last_name }}</td><td>{{ c.phone }}</td><td>{{ c.orders_count }}</td><td>{{ c.sales|mxn }}</td></tr>
         {% empty %}
         <tr><td colspan="4">Sin datos.</td></tr>
         {% endfor %}
@@ -74,7 +75,7 @@
             {% endif %}
           </td>
           <td>{{ row.count }}</td>
-          <td>${{ row.total }}</td>
+          <td>{{ row.total|mxn }}</td>
         </tr>
         {% empty %}
         <tr><td colspan="4">Sin datos.</td></tr>
@@ -107,7 +108,7 @@
       <thead><tr><th>Folio</th><th>Cliente</th><th>Estatus</th><th>Promesa</th><th>Saldo</th></tr></thead>
       <tbody>
         {% for o in pending_orders %}
-        <tr><td class="mono">{{ o.folio }}</td><td>{% if o.customer %}{{ o.customer }}{% else %}Publico general{% endif %}</td><td>{{ o.get_status_display }}</td><td>{% if o.promised_at %}{{ o.promised_at|date:"d/m/Y H:i" }}{% else %}-{% endif %}</td><td>${{ o.balance }}</td></tr>
+        <tr><td class="mono">{{ o.folio }}</td><td>{% if o.customer %}{{ o.customer }}{% else %}Publico general{% endif %}</td><td>{{ o.get_status_display }}</td><td>{{ o.promised_at|mxdatetime }}</td><td>{{ o.balance|mxn }}</td></tr>
         {% empty %}
         <tr><td colspan="5">Sin ordenes pendientes.</td></tr>
         {% endfor %}
@@ -123,7 +124,7 @@
       <thead><tr><th>Folio</th><th>Cliente</th><th>Promesa</th><th>Estatus</th><th>Saldo</th></tr></thead>
       <tbody>
         {% for o in overdue_orders %}
-        <tr><td class="mono">{{ o.folio }}</td><td>{% if o.customer %}{{ o.customer }}{% else %}Publico general{% endif %}</td><td>{{ o.promised_at|date:"d/m/Y H:i" }}</td><td>{{ o.get_status_display }}</td><td>${{ o.balance }}</td></tr>
+        <tr><td class="mono">{{ o.folio }}</td><td>{% if o.customer %}{{ o.customer }}{% else %}Publico general{% endif %}</td><td>{{ o.promised_at|mxdatetime }}</td><td>{{ o.get_status_display }}</td><td>{{ o.balance|mxn }}</td></tr>
         {% empty %}
         <tr><td colspan="5">Sin ordenes atrasadas.</td></tr>
         {% endfor %}
