@@ -16,7 +16,6 @@
 - [Qué resuelve](#qué-resuelve)
 - [Arquitectura técnica](#arquitectura-técnica)
 - [Flujo de negocio validado (E2E)](#flujo-de-negocio-validado-e2e)
-- [Vista rápida (UI)](#vista-rápida-ui)
 - [Inicio rápido (desarrollo)](#inicio-rápido-desarrollo)
 - [Variables de entorno clave](#variables-de-entorno-clave)
 - [Seguridad implementada](#seguridad-implementada)
@@ -74,22 +73,6 @@ Flujo automatizado por prueba:
 
 Archivo de prueba:
 - `apps/payments/tests/test_business_regression_flow.py`
-
-## Vista rápida (UI)
-
-Pantallas incluidas en el proyecto:
-
-### Login
-
-![Login](static/img/login.jpg)
-
-### Dashboard / Operación
-
-![Lavandería](static/img/lavanderia_login.jpg)
-
-### Referencia visual
-
-![Paleta](static/img/paleta-colores.jpg)
 
 ## Inicio rápido (desarrollo)
 
